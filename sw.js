@@ -4,7 +4,7 @@
 var VERSION = '2026.07.16';
 var C = 'shkola-' + VERSION;
 var CORE = [
-  './', './index.html', './manifest.webmanifest',
+  './', './index.html', './manifest.webmanifest', './config.js',
   './icon-192.png', './icon-512.png', './icon-180.png', './favicon.png',
   './vendor/xlsx.full.min.js',
   './vendor/three/build/three.min.js',
@@ -27,7 +27,7 @@ self.addEventListener('message', function(e){
   if(e.data === 'skipWaiting') self.skipWaiting();
 });
 function isIndex(url){
-  return url.pathname.endsWith('/') || url.pathname.endsWith('/index.html');
+  return url.pathname.endsWith('/') || url.pathname.endsWith('/index.html') || url.pathname.endsWith('/config.js');
 }
 self.addEventListener('fetch', function(e){
   if(e.request.method !== 'GET') return;

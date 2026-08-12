@@ -12,16 +12,7 @@
   };
   window.onerror = function(m){ window.__fail('Ошибка: ' + m); };
 </script>
-<script>
-/* ═══ ОБЩАЯ БАЗА И ФАЙЛЫ НА ЯНДЕКС.ДИСКЕ (заполняется автоматически) ═══
-   НЕ редактируйте вручную. Откройте приложение → раздел «Доступ и
-   журнал» → «⚙ Настройка Диска (для администратора)», введите токен
-   и пароль редактора — приложение само сформирует строку ниже.
-   Подробно — в ИНСТРУКЦИЯ.txt. Пока null — работаем автономно. */
-window.YADISK = null;
-/* ЛИЦЕНЗИЯ (подписанная издателем строка). Пусто = ознакомительный режим. */
-window.SS_LICENSE = null;
-</script>
+<script src="./config.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Manrope:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Oswald:wght@500;700&display=swap" rel="stylesheet">
@@ -398,6 +389,7 @@ window.SS_LICENSE = null;
         <div class="hudPct" id="ringPct">0%</div>
       </div>
       <div class="hud role" id="hudRole">просмотр</div>
+      <div class="hud" id="hudAn" style="display:none" title="Открыт доступ к аналитике">аналитика</div>
       <div class="hud" id="licBadge" style="display:none"></div>
     </header>
     <div id="app">
@@ -522,12 +514,13 @@ window.SS_LICENSE = null;
         </details>
       </div>
 
-      <div class="sect">
+      <div class="sect" id="anSect">
         <div class="cap">Аналитика производства</div>
         <div id="planBody" class="anCard"></div>
         <div id="alBody"></div>
         <div id="anBody" style="margin-top:9px"></div>
         <div id="matBody" style="margin-top:9px"></div>
+        <div id="anExtra" style="margin-top:9px"></div>
         <details class="logD" style="margin-top:10px" id="flowWrap"><summary>Циклограмма по блокам</summary>
           <div id="flowBody" style="margin-top:8px"></div>
         </details>
@@ -549,6 +542,7 @@ window.SS_LICENSE = null;
       <div class="sect">
         <div class="cap">Реестры исполнительной</div>
         <button class="btn" id="btnRegImport">📋 Загрузить из реестров на Диске</button>
+        <label class="sw"><input type="checkbox" id="chkRegStatus" checked><span class="tr"></span>Проставлять статусы по документам</label>
         <details class="logD" style="margin:10px 0 12px"><summary>Оси и высотные отметки</summary>
           <div id="gridInfo" class="swNote" style="margin:8px 0 0 0">сетка осей не построена</div>
           <label class="sw" style="padding:6px 0"><input type="checkbox" id="gDzAuto" checked><span class="tr"></span>Отметки определять автоматически</label>
@@ -577,6 +571,9 @@ window.SS_LICENSE = null;
 
       <div class="sect">
         <div class="cap">Обмен и восстановление</div>
+        <button class="btn" id="btnAnLogin" style="display:none">🔐 Открыть аналитику (пароль)</button>
+        <button class="btn" id="btnAnLogout" style="display:none">Закрыть аналитику</button>
+        <button class="btn mini" id="btnAnSetup">⚙ Расценки и доступ к аналитике</button>
         <button class="btn" id="btnUndo" disabled>↶ Отменить последнее действие</button>
         <button class="btn" id="btnSave">Скачать файл прогресса</button>
         <button class="btn" id="btnImport">Открыть файл прогресса</button>
@@ -602,6 +599,35 @@ window.SS_LICENSE = null;
       <div id="devPanel" aria-hidden="true"></div>
       <div id="updBar"><span>Доступна новая версия приложения.</span><button id="updBtn" type="button">Обновить</button></div>
     </main>
+    </div>
+  </div>
+
+  <div class="modal" id="anSetup">
+    <div class="modalCard">
+      <h3>Расценки и доступ к аналитике</h3>
+      <div class="sub2">Стоимость куба складывается из четырёх частей: работа по типу конструкции, бетон, арматура (норма берётся из ваших реестров) и прочие расходы одним процентом — опалубка, расходники, аренда. Так не нужно вести длинный прайс.</div>
+      <div class="fld2">
+        <div class="fld"><label>Работа: фундаменты, ₽/м³</label><input type="number" id="arFund" placeholder="8000"></div>
+        <div class="fld"><label>Работа: стены и колонны, ₽/м³</label><input type="number" id="arVert" placeholder="17500"></div>
+      </div>
+      <div class="fld2">
+        <div class="fld"><label>Работа: перекрытия, ₽/м³</label><input type="number" id="arSlab" placeholder=""></div>
+        <div class="fld"><label>Работа: лестницы, ₽/м³</label><input type="number" id="arStair" placeholder=""></div>
+      </div>
+      <div class="fld2">
+        <div class="fld"><label>Бетон В25, ₽/м³</label><input type="number" id="arConcrete" placeholder="9500"></div>
+        <div class="fld"><label>Арматура, ₽/т</label><input type="number" id="arRebar" placeholder="70000"></div>
+      </div>
+      <div class="fld2">
+        <div class="fld"><label>Прочие расходы, %</label><input type="number" id="arMisc" placeholder="15"></div>
+        <div class="fld"><label>Численность бригады, чел.</label><input type="number" id="arCrew" placeholder="12"></div>
+      </div>
+      <div class="fld"><label>Цена договора по каркасу, ₽ (не обязательно)</label><input type="number" id="arContract" placeholder=""></div>
+      <div class="btnRow"><button class="btn primary" id="anApply" type="button">Применить на этот сеанс</button></div>
+      <div class="fld" style="margin-top:14px"><label>Пароль доступа к аналитике</label><input type="password" id="anSetupPw" placeholder="придумайте пароль"></div>
+      <div class="btnRow"><button class="btn" id="anEnc" type="button">Зашифровать для config.js</button><button class="btn" id="anSetupCloseBtn" type="button">Закрыть</button></div>
+      <div class="fld" style="margin-top:10px"><label>Строка для config.js</label><textarea id="anSetupOut" rows="3" readonly placeholder="появится после шифрования"></textarea></div>
+      <div class="setupMsg">Расценки шифруются паролем: без него суммы в рублях посчитать нельзя даже через инструменты разработчика. Объёмы и статусы остаются видны всем по ссылке — это свойство общедоступной ссылки, полностью закрыть их может только серверная версия.</div>
     </div>
   </div>
 
@@ -1619,11 +1645,13 @@ window.SS_LICENSE = null;
 
     // ---- легенда ----
     function updateSummary(){
+      if(anHasGate() && !anUnlocked){ try { anGateApply(); } catch(e){} return; }
       try { anRender(); } catch(e){}
       try { matRender(); } catch(e){}
       try { flowRender(); } catch(e){}
       try { alRender(); } catch(e){}
       try { planRender(); } catch(e){}
+      try { anExtraRender(); } catch(e){}
       var counts = [0,0,0,0];
       statuses.forEach(function(s){ counts[s]++; });
       countEl.textContent = meshes.length;
@@ -2743,6 +2771,48 @@ window.SS_LICENSE = null;
       m = /(?:№\s*)?(\d{1,4}(?:[-\/][0-9A-Za-zА-Яа-яЁё]{1,6})?)/.exec(t);
       return m ? m[1] : '';
     }
+    /** Сканирует ВЕСЬ документ (не только таблицу реестра) и достаёт:
+        — даты начала и окончания работ из актов (по марке акта);
+        — протоколы испытаний: номер, дата, набор прочности в % и описание
+          конструкций, к которым он относится.
+        Эти данные питают модули «Трудозатраты» и «Прочность бетона». */
+    function scanDocExtras(pageTexts){
+      var acts = {}, prots = [];
+      var all = pageTexts.join('\n');
+      var MON = 'январ|феврал|март|апрел|мая|май|июн|июл|август|сентябр|октябр|ноябр|декабр';
+      // акты: марка + даты начала/окончания
+      var reAct = /№\s*([А-ЯЁA-Z]{1,4}\s?\d{0,3}\s?[-–]\s?\d{1,3})[\s\S]{0,4000}?начала\s+работ[:\s]*«?\s*(\d{1,2})\s*»?\s*([а-яё]+)\s*(\d{4})[\s\S]{0,200}?окончания\s+работ[:\s]*«?\s*(\d{1,2})\s*»?\s*([а-яё]+)\s*(\d{4})/gi;
+      var m;
+      function mnum(name){
+        var i = 0, list = MON.split('|');
+        for(var k = 0; k < list.length; k++) if(String(name).toLowerCase().indexOf(list[k]) === 0) { i = k + 1; break; }
+        if(i > 5) i = i - 1;                     // «мая» и «май» — один месяц
+        return i;
+      }
+      while((m = reAct.exec(all))){
+        var mark = m[1].replace(/\s+/g, '').replace('–', '-');
+        var m1 = mnum(m[3]), m2 = mnum(m[6]);
+        if(!m1 || !m2) continue;
+        acts[mark] = {
+          ws: m[4] + '-' + pad2(m1) + '-' + pad2(+m[2]),
+          we: m[7] + '-' + pad2(m2) + '-' + pad2(+m[5])
+        };
+      }
+      // протоколы прочности: % набора + к каким конструкциям
+      var reProt = /ПРОТОКОЛ\s+ИСПЫТАНИЙ\s*№\s*([0-9\/A-Za-zА-Яа-я-]+)[\s\S]{0,3000}?составляет\s+([\d]{1,3}[.,]?\d?)\s*%/gi;
+      while((m = reProt.exec(all))){
+        var seg = all.slice(m.index, m.index + 3000);
+        var cons = /Конструктивы?\s*:?\s*([^\n]{5,160})/i.exec(seg);
+        var dt = /\((?:выдан)\s+(\d{1,2})[.](\d{1,2})[.](\d{4})/i.exec(seg);
+        prots.push({
+          num: m[1],
+          pct: parseFloat(String(m[2]).replace(',', '.')),
+          date: dt ? (dt[3] + '-' + pad2(+dt[2]) + '-' + pad2(+dt[1])) : '',
+          cons: cons ? cons[1].replace(/\s+/g, ' ').trim() : ''
+        });
+      }
+      return { acts: acts, prots: prots };
+    }
     function readPdfRegister(blob, name){
       return ensurePdf().then(function(lib){
         return blob.arrayBuffer().then(function(buf){ return lib.getDocument({ data:buf }).promise; });
@@ -2853,6 +2923,20 @@ window.SS_LICENSE = null;
       var cls = regClassify(hints);
       return { hints: hints, cls: cls };
     }
+    /** Какой статус подтверждает документ.
+        3 — КС-2 подписан (акт о приёмке выполненных работ);
+        2 — исполнительная подписана: есть АОСР на БЕТОНИРОВАНИЕ, то есть
+            конструкция существует в натуре и освидетельствована;
+        0 — не менять: акты на армирование и опалубку означают, что конструкция
+            ещё не забетонирована, красить её как готовую нельзя. */
+    function regStatusFor(row){
+      var t = (row.name || '') + ' ' + (row.docs || '') + ' ' + (row.src || '');
+      if(/КС-?\s?2|приемк[еи]\s+выполненных\s+работ/i.test(t)) return 3;
+      if(/бетонирован|укладк[аи]\s+бетон/i.test(t)) return 2;
+      if(row.vol > 0 && /м\s*3|м³/i.test(t)) return 2;
+      return 0;
+    }
+    var regAutoStatus = true;
     function regRowApply(row, cls, quiet){
       var tgt = regResolveTarget(cls);
       if(!tgt) return null;
@@ -2881,9 +2965,26 @@ window.SS_LICENSE = null;
         if(vch && Math.abs(vch.diff) > 0.001)
           addLog('объём заменён из реестра', tgt.name, fmtVol(vch.before) + ' → ' + fmtVol(vch.after) + ' м³');
       }
+      // 3) статус по документу — конструкции перекрашиваются автоматически
+      var want = regAutoStatus ? regStatusFor(row) : 0;
+      if(want > 0 && idxs.length){
+        if(want === 3){
+          if(row.act && !tgt.obj.kn) tgt.obj.kn = row.act;
+          if(row.date && !tgt.obj.kd) tgt.obj.kd = row.date;
+        }
+        var changed = 0;
+        idxs.forEach(function(ix){
+          if((statuses[ix] || 0) < want){         // статус только повышается
+            statuses[ix] = want;
+            applyStatus(ix);                       // перекраска в 3D
+            changed++;
+          }
+        });
+        if(changed) addLog('статус по документам: ' + STATUS[want].label, tgt.name, changed + ' конструкций');
+      }
       addLog('данные из реестра', tgt.name, human + (row.vol ? ' · ' + fmtVol(row.vol) + ' м³' : ''));
       if(!quiet){ saveToStore(); updateSummary(); updateStats(); showSel(); }
-      return { target: tgt.name, vch: vch, idxs: idxs };
+      return { stat: want, target: tgt.name, vch: vch, idxs: idxs };
     }
     // ── UI результатов ──
     function regOpen(){ var m = document.getElementById('regModal'); if(m) m.classList.add('show'); }
@@ -2903,6 +3004,8 @@ window.SS_LICENSE = null;
         html += '<div class="regItem"><div class="regHead"><span class="regNm">' + esc(it.name.slice(0, 90)) + '</span>' + st + '</div>';
         html += '<div class="regMeta">' + esc(it.src) + ' стр.' + it.line + (req ? ' · ' + esc(req) : '') +
                 (it.vol ? ' · реестр: ' + fmtVol(it.vol) + ' м³' : '') + '</div>';
+        if(it.stat > 0)
+          h += '<div class="regVol">статус: <b>' + esc(STATUS[it.stat].label) + '</b> — конструкции перекрашены</div>';
         if(it.vch && Math.abs(it.vch.diff) > 0.001)
           html += '<div class="regVol">объём в модели: ' + fmtVol(it.vch.before) + ' → <b>' + fmtVol(it.vch.after) + ' м³</b> (из реестра)</div>';
         if(!it.applied && it.cls){
@@ -2933,7 +3036,7 @@ window.SS_LICENSE = null;
       if(!cls) return;
       pushUndo('импорт строки реестра');
       var res = regRowApply(it, cls, false);
-      if(res){ it.applied = true; it.target = res.target; it.vch = res.vch; }
+      if(res){ it.applied = true; it.target = res.target; it.vch = res.vch; it.stat = res.stat; }
       regRender();
     }
     // ── основной прогон ──
@@ -2962,7 +3065,10 @@ window.SS_LICENSE = null;
           if(idx >= regs.length){
             regState.busy = false;
             var auto = regState.rows.filter(function(x){ return x.applied; }).length;
-            regSetSub('Готово. Обработано строк: ' + regState.rows.length + ', подшито автоматически: ' + auto + '. Проверьте спорные.');
+            var st3 = regState.rows.filter(function(x){ return x.stat === 3; }).length;
+            var st2 = regState.rows.filter(function(x){ return x.stat === 2; }).length;
+            regSetSub('Готово. Строк: ' + regState.rows.length + ', подшито: ' + auto +
+              (st2 ? ' · исполнительная: ' + st2 : '') + (st3 ? ' · КС-2: ' + st3 : '') + '. Проверьте спорные.');
             saveToStore(); updateSummary(); updateStats(); showSel(); regRender();
             return;
           }
@@ -2975,7 +3081,7 @@ window.SS_LICENSE = null;
                 row.hints = t.hints; row.cls = t.cls; row.applied = false;
                 if(t.cls.level === 'exact'){
                   var res = regRowApply(row, t.cls, true);
-                  if(res){ row.applied = true; row.target = res.target; row.vch = res.vch; }
+                  if(res){ row.applied = true; row.target = res.target; row.vch = res.vch; row.stat = res.stat; }
                 }
                 regState.rows.push(row);
               });
@@ -3553,6 +3659,255 @@ window.SS_LICENSE = null;
         h += '<div class="anSub">Выделите конструкции на модели и нажмите «В план недели» в карточке.</div>';
       }
       h += '<div class="anRow"><span>' + weekLabel(nw) + '</span><b>' + (B.planned > 0 ? fmtVol(B.planned) + ' м³ запланировано' : 'плана нет') + '</b></div>';
+      box.innerHTML = h;
+    }
+
+
+    // ═══ ДОСТУП К АНАЛИТИКЕ (третья роль) ═══
+    // Три уровня доступа:
+    //   1. Наблюдатель — открыл ссылку: модель, статусы, документы. Аналитики нет.
+    //   2. Редактор — пароль редактора: правит статусы и документы. Аналитики нет.
+    //   3. Аналитик — отдельный пароль: видит темп, прогноз, деньги, план.
+    // Расценки хранятся ЗАШИФРОВАННЫМИ (AES-256-GCM, ключ из пароля через
+    // PBKDF2). Без пароля их нет ни в коде, ни в данных — значит, суммы в рублях
+    // посчитать нельзя даже через инструменты разработчика.
+    var anRates = null, anUnlocked = false;
+
+    function anCfgBlock(){ return (typeof window !== 'undefined' && window.SS_ANALYTICS) ? window.SS_ANALYTICS : null; }
+    function anHasGate(){ var c = anCfgBlock(); return !!(c && c.salt && c.enc); }
+    /** Показывать раздел аналитики или нет. */
+    function anGateApply(){
+      var sec = document.getElementById('anSect');
+      var btn = document.getElementById('btnAnLogin');
+      var out = document.getElementById('btnAnLogout');
+      var gated = anHasGate();
+      if(sec) sec.style.display = (!gated || anUnlocked) ? '' : 'none';
+      if(btn) btn.style.display = (gated && !anUnlocked) ? '' : 'none';
+      if(out) out.style.display = (gated && anUnlocked) ? '' : 'none';
+      var hr = document.getElementById('hudAn');
+      if(hr) hr.style.display = anUnlocked ? 'flex' : 'none';
+    }
+    function anLogin(){
+      if(!anHasGate()){ setMsg('Аналитика открыта всем: пароль не настроен. Задать — «⚙ Расценки и доступ к аналитике».', true); return; }
+      if(!subtleOK()){ setMsg('Шифрование недоступно (откройте приложение по https-ссылке).', true); return; }
+      var pw = prompt('Пароль доступа к аналитике:');
+      if(pw === null) return;
+      var c = anCfgBlock();
+      setMsg('Проверяю пароль…');
+      decryptToken(pw, c.salt, c.enc).then(function(json){
+        var r = JSON.parse(json);
+        anRates = r; anUnlocked = true;
+        anGateApply(); updateSummary();
+        addLog('вход в аналитику', '', '');
+        setMsg('Аналитика открыта: темп, прогноз, деньги и план недели.');
+      }).catch(function(){ setMsg('Неверный пароль доступа к аналитике.', true); });
+    }
+    function anLogout(){
+      anRates = null; anUnlocked = false;
+      anGateApply(); updateSummary();
+      setMsg('Аналитика закрыта.');
+    }
+    /** Расценки: из расшифрованного блока либо введённые на этот сеанс. */
+    function anRateSet(){
+      return anRates || { work:{}, concrete:0, rebar:0, misc:0, contract:0, crew:0 };
+    }
+    /** Группа расценки по типу конструкции. */
+    function anRateKind(type){
+      var t = String(type || '').toLowerCase();
+      if(/фундамент|ростверк|подготовк/.test(t)) return 'fund';
+      if(/колонн|стен|пилон|диафрагм/.test(t)) return 'vert';
+      if(/лестниц|марш/.test(t)) return 'stair';
+      if(/перекрыт|покрыт|плита|балк|ригел/.test(t)) return 'slab';
+      return 'other';
+    }
+    var AN_KIND_NAME = { fund:'Фундаменты', vert:'Вертикальные конструкции', slab:'Перекрытия и балки', stair:'Лестницы', other:'Прочее' };
+
+    // ── настройка расценок и пароля (для администратора) ──
+    function anSetupOpen(){
+      var m = document.getElementById('anSetup');
+      if(!m) return;
+      var r = anRateSet();
+      function v(id, val){ var e = document.getElementById(id); if(e) e.value = val || ''; }
+      v('arFund', (r.work && r.work.fund) || ''); v('arVert', (r.work && r.work.vert) || '');
+      v('arSlab', (r.work && r.work.slab) || ''); v('arStair', (r.work && r.work.stair) || '');
+      v('arConcrete', r.concrete); v('arRebar', r.rebar); v('arMisc', r.misc ? Math.round(r.misc * 100) : '');
+      v('arContract', r.contract); v('arCrew', r.crew);
+      m.classList.add('show');
+      var out = document.getElementById('anSetupOut'); if(out) out.value = '';
+    }
+    function anSetupClose(){ var m = document.getElementById('anSetup'); if(m) m.classList.remove('show'); }
+    function anSetupCollect(){
+      function n(id){ var e = document.getElementById(id); return e ? (parseFloat(e.value) || 0) : 0; }
+      return {
+        work: { fund:n('arFund'), vert:n('arVert'), slab:n('arSlab'), stair:n('arStair'), other:n('arSlab') },
+        concrete: n('arConcrete'), rebar: n('arRebar'), misc: n('arMisc') / 100,
+        contract: n('arContract'), crew: n('arCrew')
+      };
+    }
+    /** Применить расценки только на этот сеанс (без пароля, ничего не публикуется). */
+    function anSetupApply(){
+      anRates = anSetupCollect(); anUnlocked = true;
+      anGateApply(); updateSummary();
+      setMsg('Расценки применены на этот сеанс. Чтобы закрепить их паролем — нажмите «Зашифровать».');
+    }
+    /** Зашифровать расценки паролем и выдать строку для config.js. */
+    function anSetupEncrypt(){
+      if(!subtleOK()){ setMsg('Шифрование недоступно (нужна https-ссылка).', true); return; }
+      var pw = document.getElementById('anSetupPw');
+      var p = pw ? pw.value : '';
+      if(!p || p.length < 4){ setMsg('Задайте пароль доступа к аналитике (не короче 4 символов).', true); return; }
+      var data = JSON.stringify(anSetupCollect());
+      encryptToken(p, data).then(function(enc){
+        var out = document.getElementById('anSetupOut');
+        var line = 'window.SS_ANALYTICS = { salt: "' + enc.salt + '", enc: "' + enc.blob + '" };';
+        if(out) out.value = line;
+        setMsg('Готово: скопируйте строку и вставьте в config.js. Пароль запомните — восстановить его нельзя.');
+      }).catch(function(e){ setMsg('Не удалось зашифровать: ' + (e && e.message ? e.message : 'ошибка'), true); });
+    }
+
+    // ═══ М7: ОСВОЕНИЕ (упрощённая модель стоимости) ═══
+    // Вместо большого перечня расценок — четыре составляющих на кубометр:
+    //   работа по типу конструкции + бетон + арматура (норма из реестров)
+    //   + прочие расходы одним процентом (опалубка, расходники, аренда).
+    function anCostPerM3(kind, kgPerM3){
+      var r = anRateSet();
+      var work = (r.work && r.work[kind]) || 0;
+      var rebar = (r.rebar || 0) * (kgPerM3 || 0) / 1000;
+      var base = work + (r.concrete || 0) + rebar;
+      return base * (1 + (r.misc || 0));
+    }
+    function anEarned(){
+      var norms = matParseNorms();
+      var kg = (matCfg.auto && norms.kgPerM3 > 0) ? norms.kgPerM3 : matCfg.rebar;
+      var recs = anRecords(), byKind = {}, done = 0, total = 0, ks = 0;
+      recs.forEach(function(rec){
+        var kind = anRateKind(info[rec.i] && info[rec.i].type);
+        var price = anCostPerM3(kind, kg);
+        var k = byKind[kind] = byKind[kind] || { kind:kind, vol:0, doneVol:0, sum:0, doneSum:0, price:price };
+        k.vol += rec.vol; k.sum += rec.vol * price;
+        total += rec.vol * price;
+        if(rec.st >= 1){ k.doneVol += rec.vol; k.doneSum += rec.vol * price; done += rec.vol * price; }
+        if(rec.st >= 3) ks += rec.vol * price;
+      });
+      return { byKind: Object.keys(byKind).map(function(k){ return byKind[k]; }).sort(function(a,b){ return b.sum - a.sum; }),
+               done:done, total:total, ks:ks, kgPerM3:kg };
+    }
+    // ═══ М6: ТРУДОЗАТРАТЫ И ЦИКЛ ЗАХВАТКИ (из дат в реестрах) ═══
+    // Даты начала и окончания работ берутся из актов, объём — из реестра.
+    // Отсюда: длительность цикла, темп на захватку и задержка оформления.
+    function anLabor(){
+      var items = [], r = anRateSet();
+      function push(name, vol, ws, we, act){
+        if(!vol || !ws || !we) return;
+        var days = Math.max(1, daysBetween(ws, we) + 1);
+        items.push({ name:name, vol:vol, days:days, rate:vol / days,
+                     lag: act ? daysBetween(we, act) : null });
+      }
+      groups.forEach(function(g){
+        var v = 0; (g.members || []).forEach(function(i){ v += vols[i] || 0; });
+        push(g.name, v, parseYmd(g.ws), parseYmd(g.we), parseYmd(g.bd));
+      });
+      for(var i = 0; i < meshes.length; i++){
+        if(typeof groupOf !== 'undefined' && groupOf[i] >= 0) continue;
+        var m = meta[i]; if(!m || !m.ws) continue;
+        push(meshes[i].userData.dname, vols[i] || 0, parseYmd(m.ws), parseYmd(m.we), parseYmd(m.bd));
+      }
+      var vol = 0, days = 0, lagN = 0, lagS = 0;
+      items.forEach(function(it){
+        vol += it.vol; days += it.days;
+        if(it.lag !== null && it.lag >= 0){ lagN++; lagS += it.lag; }
+      });
+      // темп берём медианный по захваткам: захватки часто идут параллельно,
+      // и суммирование дней занижало бы производительность бригады
+      var rates = items.map(function(it){ return it.rate; }).sort(function(a,b){ return a-b; });
+      var rate = rates.length ? rates[Math.floor(rates.length / 2)] : 0;
+      var crew = r.crew || 0;
+      return { items:items, vol:vol, days:days, rate:rate,
+               manHours: (crew > 0 && rate > 0) ? (crew * 8 / rate) : null,
+               avgLag: lagN ? lagS / lagN : null, crew:crew };
+    }
+    // ═══ М8: КОНТРОЛЬ ПРОЧНОСТИ БЕТОНА (из протоколов испытаний) ═══
+    function anStrength(){
+      var withP = [], noP = [], low = [], overdue = 0, overdueVol = 0;
+      var now = new Date(); now.setHours(0,0,0,0);
+      var recs = anRecords(), seen = {};
+      recs.forEach(function(rec){
+        if(rec.st < 1) return;
+        var g = (typeof groupOf !== 'undefined' && groupOf[rec.i] >= 0) ? groups[groupOf[rec.i]] : null;
+        var src = g || meta[rec.i] || {};
+        var key = g ? g.name : ('#' + rec.i);
+        var it = seen[key];
+        if(!it){
+          it = seen[key] = { key:key, name: g ? g.name : (meshes[rec.i].userData.dname || ''), vol:0,
+                             has: /протокол\s*(испытан|результат)|реестр\s+результатов|лаборатор/i.test(src.acts || ''),
+                             pct: (src.str && src.str.pct) || 0, age: rec.bd ? daysBetween(rec.bd, now) : null };
+          (it.has ? withP : noP).push(it);
+          if(it.pct > 0 && it.pct < 70) low.push(it);
+        }
+        it.vol += rec.vol;
+        if(rec.bd){ var a2 = daysBetween(rec.bd, now); if(a2 > (it.age || 0)) it.age = a2; }
+      });
+      noP.forEach(function(it){ if(it.age !== null && it.age >= 28){ overdue++; overdueVol += it.vol; } });
+      noP.sort(function(a2,b2){ return (b2.age || 0) - (a2.age || 0); });
+      return { withP:withP, noP:noP, low:low, overdue:overdue, overdueVol:overdueVol };
+    }
+    function anExtraRender(){
+      var box = document.getElementById('anExtra');
+      if(!box) return;
+      if(!meshes.length || !anUnlocked){ box.innerHTML = ''; return; }
+      var h = '', r = anRateSet();
+      // ── М7 ──
+      var E = anEarned();
+      h += '<div class="anCard"><div class="anCap">Освоение</div>';
+      if(E.total > 0){
+        h += '<div class="anBig">' + fmtMoney(E.done) + '</div>';
+        h += '<div class="anSub">выполнено из ' + fmtMoney(E.total) + ' по всему каркасу · ' +
+             Math.round(E.done / E.total * 100) + '%</div>';
+        h += '<div class="anRow"><span>Принято по КС-2</span><b>' + fmtMoney(E.ks) + '</b></div>';
+        h += '<div class="anRow"><span>Сделано, но не принято</span><b class="anWarn">' + fmtMoney(E.done - E.ks) + '</b></div>';
+        if(r.contract > 0) h += '<div class="anRow"><span>От договорной цены</span><b>' + Math.round(E.done / r.contract * 100) + '%</b></div>';
+        h += '<div class="anList">';
+        E.byKind.forEach(function(k){
+          h += '<div class="anRow"><span>' + AN_KIND_NAME[k.kind] + ' · ' + Math.round(k.price) + ' ₽/м³</span><b>' +
+               fmtMoney(k.doneSum) + '</b></div>';
+        });
+        h += '</div><div class="anSub">Цена куба = работа по типу + бетон + арматура (' + Math.round(E.kgPerM3) +
+             ' кг/м³ из реестров) + прочие ' + Math.round((r.misc || 0) * 100) + '%.</div>';
+      } else h += '<div class="anSub">Задайте расценки: «⚙ Расценки и доступ к аналитике».</div>';
+      h += '</div>';
+      // ── М6 ──
+      var L = anLabor();
+      h += '<div class="anCard"><div class="anCap">Трудозатраты и цикл захватки</div>';
+      if(L.items.length){
+        h += '<div class="anBig">' + fmtVol(L.rate) + ' <span>м³/день</span></div>';
+        h += '<div class="anSub">медиана по ' + L.items.length + ' захваткам из реестров · всего ' + fmtVol(L.vol) + ' м³</div>';
+        if(L.manHours !== null) h += '<div class="anRow"><span>Трудоёмкость</span><b>' + fmtVol(L.manHours) + ' чел-ч/м³</b></div>';
+        else h += '<div class="anSub">Укажите численность бригады в настройках — приложение посчитает чел-ч/м³.</div>';
+        if(L.avgLag !== null) h += '<div class="anRow"><span>Оформление акта после работ</span><b class="' + (L.avgLag > 7 ? 'anWarn' : '') + '">' + Math.round(L.avgLag) + ' дн в среднем</b></div>';
+        h += '<div class="anList">';
+        L.items.slice(0, 5).forEach(function(it){
+          h += '<div class="anRow"><span>' + esc(String(it.name).slice(0, 34)) + '</span><b>' + it.days + ' дн · ' + fmtVol(it.rate) + ' м³/день</b></div>';
+        });
+        h += '</div>';
+      } else h += '<div class="anSub">Нет дат начала и окончания работ. Загрузите реестры с актами — приложение возьмёт даты из них.</div>';
+      h += '</div>';
+      // ── М8 ──
+      var S = anStrength();
+      h += '<div class="anCard"><div class="anCap">Испытания бетона</div>';
+      var tot = S.withP.length + S.noP.length;
+      if(tot){
+        h += '<div class="anRow"><span>Захваток с протоколами</span><b class="' + (S.withP.length === tot ? 'anGood' : '') + '">' +
+             S.withP.length + ' из ' + tot + '</b></div>';
+        if(S.low.length) h += '<div class="anRow"><span>Набор ниже 70%</span><b class="anBad">' + S.low.length + '</b></div>';
+        if(S.overdue){
+          h += '<div class="anSub anBad">Без протокола спустя 28 суток: ' + S.overdue + ' · ' + fmtVol(S.overdueVol) + ' м³</div><div class="anList">';
+          S.noP.filter(function(x){ return x.age !== null && x.age >= 28; }).slice(0, 5).forEach(function(it){
+            h += '<div class="anRow anItem" data-an="' + esc(it.key) + '"><span>' + esc(String(it.name).slice(0, 34)) + '</span><b>' + it.age + ' дн · ' + fmtVol(it.vol) + ' м³</b></div>';
+          });
+          h += '</div>';
+        } else h += '<div class="anSub anGood">Просроченных по испытаниям нет.</div>';
+      } else h += '<div class="anSub">Данных об испытаниях пока нет — они появятся при загрузке реестров.</div>';
+      h += '</div>';
       box.innerHTML = h;
     }
 
@@ -5041,6 +5396,15 @@ window.SS_LICENSE = null;
     document.getElementById('btnUndo').onclick = doUndo;
     gridUiBind();
     (function(){
+      var b1 = document.getElementById('btnAnLogin'); if(b1) b1.onclick = anLogin;
+      var b2 = document.getElementById('btnAnLogout'); if(b2) b2.onclick = anLogout;
+      var b3 = document.getElementById('btnAnSetup'); if(b3) b3.onclick = anSetupOpen;
+      var b4 = document.getElementById('anApply'); if(b4) b4.onclick = anSetupApply;
+      var b5 = document.getElementById('anEnc'); if(b5) b5.onclick = anSetupEncrypt;
+      var b6 = document.getElementById('anSetupCloseBtn'); if(b6) b6.onclick = anSetupClose;
+      anGateApply();
+    })();
+    (function(){
       var bc = document.getElementById('btnPlanCur'), bn = document.getElementById('btnPlanNext'), dp = document.getElementById('dPlan');
       if(bc) bc.onclick = function(){ planSet(curWeek()); };
       if(bn) bn.onclick = function(){ planSet(nextWeek()); };
@@ -5086,6 +5450,16 @@ window.SS_LICENSE = null;
         }
       });
       });
+    })();
+    (function(){
+      var c = document.getElementById('chkRegStatus');
+      if(c){
+        try { regAutoStatus = localStorage.getItem('shkola-autostat') !== '0'; c.checked = regAutoStatus; } catch(e){}
+        c.onchange = function(){
+          regAutoStatus = c.checked;
+          try { localStorage.setItem('shkola-autostat', regAutoStatus ? '1' : '0'); } catch(e){}
+        };
+      }
     })();
     (function(){ var b=document.getElementById('btnRegImport'); if(b) b.onclick=runRegistryImport;
       var c=document.getElementById('regClose'); if(c) c.onclick=regCloseModal; })();
