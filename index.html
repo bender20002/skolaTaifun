@@ -49,7 +49,9 @@
   #shell{display:flex;flex-direction:column;height:100%;}
 
   /* ─── верхняя командная панель ─── */
-  #topbar{flex:0 0 auto;height:60px;display:flex;align-items:center;gap:14px;padding:0 18px;
+  #topbar{flex:0 0 auto;min-height:calc(60px + env(safe-area-inset-top));height:auto;
+    display:flex;align-items:center;gap:14px;
+    padding:env(safe-area-inset-top) max(18px, env(safe-area-inset-right)) 0 max(18px, env(safe-area-inset-left));
     background:linear-gradient(180deg,rgba(20,28,40,.92),rgba(12,16,23,.92));
     -webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);
     border-bottom:1px solid var(--line2);box-shadow:0 6px 24px -14px #000;z-index:20;}
@@ -204,7 +206,12 @@
   .logE b{color:var(--ink);font-weight:600;}
   .logE .lt{color:var(--ink4);font-family:var(--mono);}
 
-  #msg{margin:auto 0 0;padding:12px 18px;font-size:11.5px;color:var(--ink3);line-height:1.55;border-top:1px solid var(--line);min-height:20px;background:var(--graphite);}
+  .modelBar{display:flex;gap:7px;justify-content:flex-end;padding:9px 18px;border-bottom:none;border-top:1px solid var(--line);margin-top:auto;}
+  .btnTiny{border:1px solid var(--line2);background:var(--raise);color:var(--ink3);border-radius:8px;
+    font:inherit;font-size:11px;font-weight:600;padding:6px 10px;cursor:pointer;transition:color .16s,border-color .16s,background .16s;}
+  .btnTiny:hover{color:var(--ink);border-color:var(--line3);background:var(--raise2);}
+  @media (pointer:coarse){ .btnTiny{min-height:36px;padding:8px 12px;} }
+  #msg{margin:0;padding:12px 18px calc(12px + env(safe-area-inset-bottom));font-size:11.5px;color:var(--ink3);line-height:1.55;border-top:1px solid var(--line);min-height:20px;background:var(--graphite);}
   #msg.err{color:#FCA5A5;}
 
   /* ─── вьюпорт ─── */
@@ -215,21 +222,21 @@
   #hint{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:var(--ink4);text-align:center;font-size:14.5px;line-height:1.75;pointer-events:none;padding:0 24px;z-index:3;}
   #hint span{max-width:420px;}
   #hint b{color:var(--ink2);font-weight:600;}
-  #btnHome2{position:absolute;top:16px;right:150px;z-index:6;display:none;align-items:center;gap:7px;border:1px solid var(--line2);
+  #btnHome2{position:absolute;top:16px;right:calc(150px + env(safe-area-inset-right));z-index:6;display:none;align-items:center;gap:7px;border:1px solid var(--line2);
     background:rgba(14,20,29,.82);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);color:var(--ink2);border-radius:999px;
     font:inherit;font-size:12px;font-weight:600;padding:10px 15px;cursor:pointer;transition:color .16s,border-color .16s;box-shadow:var(--sh2);}
   #btnHome2:hover{color:var(--ink);border-color:var(--line3);}
-  #btnElev{position:absolute;top:16px;right:404px;z-index:6;display:none;align-items:center;gap:7px;border:1px solid var(--line2);
+  #btnElev{position:absolute;top:16px;right:calc(404px + env(safe-area-inset-right));z-index:6;display:none;align-items:center;gap:7px;border:1px solid var(--line2);
     background:rgba(14,20,29,.82);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);color:var(--ink2);border-radius:999px;
     font:inherit;font-size:12px;font-weight:600;padding:10px 15px;cursor:pointer;transition:color .16s,border-color .16s,background .16s;box-shadow:var(--sh2);}
   #btnElev:hover{color:var(--ink);border-color:var(--line3);}
   #btnElev.on{color:#FBD38A;border-color:var(--amber);background:rgba(245,165,36,.18);}
-  #btnAxes{position:absolute;top:16px;right:290px;z-index:6;display:none;align-items:center;gap:7px;border:1px solid var(--line2);
+  #btnAxes{position:absolute;top:16px;right:calc(290px + env(safe-area-inset-right));z-index:6;display:none;align-items:center;gap:7px;border:1px solid var(--line2);
     background:rgba(14,20,29,.82);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);color:var(--ink2);border-radius:999px;
     font:inherit;font-size:12px;font-weight:600;padding:10px 15px;cursor:pointer;transition:color .16s,border-color .16s,background .16s;box-shadow:var(--sh2);}
   #btnAxes:hover{color:var(--ink);border-color:var(--line3);}
   #btnAxes.on{color:#FBD38A;border-color:var(--amber);background:rgba(245,165,36,.18);}
-  #btnMulti{position:absolute;top:16px;right:16px;z-index:6;display:none;align-items:center;gap:8px;border:1px solid var(--line2);
+  #btnMulti{position:absolute;top:16px;right:calc(16px + env(safe-area-inset-right));z-index:6;display:none;align-items:center;gap:8px;border:1px solid var(--line2);
     background:rgba(14,20,29,.82);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);color:var(--ink2);border-radius:999px;
     font:inherit;font-size:12px;font-weight:600;padding:10px 16px;cursor:pointer;transition:color .16s,border-color .16s,background .16s;box-shadow:var(--sh2);}
   #btnMulti::before{content:'';width:9px;height:9px;border-radius:3px;border:1.5px solid currentColor;}
@@ -267,7 +274,7 @@
   .healthRow:first-child{border-top:none;}
   .healthRow .hIco{flex:0 0 auto;}
   .healthRow .hVal{color:var(--ink3);font-family:var(--mono);font-size:10.5px;text-align:right;}
-  #updBar{position:absolute;left:50%;transform:translateX(-50%);bottom:16px;z-index:10;display:none;align-items:center;gap:12px;
+  #updBar{position:absolute;left:50%;transform:translateX(-50%);bottom:calc(16px + env(safe-area-inset-bottom));z-index:10;display:none;align-items:center;gap:12px;
     background:linear-gradient(145deg,var(--amber2),var(--amber-deep));color:#1A1206;border-radius:999px;padding:9px 10px 9px 16px;
     font-size:12.5px;font-weight:600;box-shadow:var(--sh3);}
   #updBar.show{display:flex;}
@@ -275,7 +282,7 @@
   .hud.warn{color:#FCA5A5;border-color:rgba(248,113,113,.45);background:rgba(248,113,113,.1);}
   .hud.warn::before{background:var(--danger);}
   .hud.ok::before{background:#34D399;}
-  #devPanel{position:absolute;right:14px;bottom:14px;z-index:9;display:none;min-width:280px;max-width:340px;
+  #devPanel{position:absolute;right:calc(14px + env(safe-area-inset-right));bottom:calc(14px + env(safe-area-inset-bottom));z-index:9;display:none;min-width:280px;max-width:340px;
     background:rgba(9,13,20,.93);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);
     border:1px solid var(--line2);border-radius:12px;padding:10px 12px;box-shadow:var(--sh3);
     font-family:var(--mono);font-size:10.5px;line-height:1.55;color:var(--ink2);}
@@ -284,7 +291,8 @@
   #devPanel .dvr{display:flex;justify-content:space-between;gap:10px;}
   #devPanel .dvr span:last-child{color:var(--ink);text-align:right;word-break:break-all;}
   #devPanel h4{margin:6px 0 3px;font:600 9px/1 var(--disp);letter-spacing:.14em;text-transform:uppercase;color:var(--ink3);}
-  .modal{position:fixed;inset:0;background:rgba(4,7,11,.74);-webkit-backdrop-filter:blur(5px);backdrop-filter:blur(5px);z-index:60;display:none;align-items:center;justify-content:center;padding:18px;}
+  .modal{position:fixed;inset:0;background:rgba(4,7,11,.74);-webkit-backdrop-filter:blur(5px);backdrop-filter:blur(5px);z-index:60;display:none;align-items:center;justify-content:center;
+    padding:max(18px, calc(10px + env(safe-area-inset-top))) max(18px, env(safe-area-inset-right)) max(18px, calc(10px + env(safe-area-inset-bottom))) max(18px, env(safe-area-inset-left));}
   .modal.show{display:flex;animation:fade .2s ease;}
   @keyframes fade{from{opacity:0}to{opacity:1}}
   .modalCard{background:var(--graphite);border:1px solid var(--line2);border-radius:18px;max-width:540px;width:100%;max-height:90vh;overflow:auto;-webkit-overflow-scrolling:touch;padding:24px;box-shadow:var(--sh3);animation:pop .25s cubic-bezier(.22,1,.36,1);}
@@ -342,14 +350,17 @@
   .setupMsg{font-size:12px;line-height:1.55;margin:10px 0;color:var(--amber2);}
 
   @media (max-width:900px){
-    #btnMulti{right:12px;top:12px;padding:8px 12px;font-size:11px;}
-    #btnHome2{right:124px;top:12px;padding:8px 12px;font-size:11px;}
-    #btnAxes{right:224px;top:12px;padding:8px 12px;font-size:11px;}
-    #btnElev{right:306px;top:12px;padding:8px 12px;font-size:11px;}
-    #topbar{height:auto;flex-wrap:wrap;padding:10px 14px;gap:10px;}
+    #btnMulti{right:calc(12px + env(safe-area-inset-right));top:12px;padding:8px 12px;font-size:11px;}
+    #btnHome2{right:calc(124px + env(safe-area-inset-right));top:12px;padding:8px 12px;font-size:11px;}
+    #btnAxes{right:calc(224px + env(safe-area-inset-right));top:12px;padding:8px 12px;font-size:11px;}
+    #btnElev{right:calc(306px + env(safe-area-inset-right));top:12px;padding:8px 12px;font-size:11px;}
+    #topbar{min-height:0;height:auto;flex-wrap:wrap;gap:10px;
+      padding:calc(10px + env(safe-area-inset-top)) max(14px, env(safe-area-inset-right)) 10px max(14px, env(safe-area-inset-left));}
     .bObj{max-width:180px;}
     #app{flex-direction:column;}
     #rail{width:100%;flex:0 0 auto;max-height:52%;border-right:none;border-bottom:1px solid var(--line);}
+    .sect{padding-left:max(16px, env(safe-area-inset-left));padding-right:max(16px, env(safe-area-inset-right));}
+    #msg{padding-left:max(16px, env(safe-area-inset-left));padding-right:max(16px, env(safe-area-inset-right));}
     #viewer{flex:1 1 auto;}
     .sect{padding:14px 16px;}
   }
@@ -395,11 +406,6 @@
     <div id="app">
       <aside id="rail">
         <div class="sect">
-        <button class="btn primary" id="btnLoad">Загрузить модель школы</button>
-        <button class="btn" id="btnDemo">Открыть демо-модель</button>
-      </div>
-
-      <div class="sect">
         <div class="cap">Правила</div>
         <label class="sw"><input type="checkbox" id="chkQuick" checked><span class="tr"></span>Клик переключает статус</label>
         <label class="sw"><input type="checkbox" id="chkLabels" checked><span class="tr"></span>Подписи блоков над моделью</label>
@@ -584,12 +590,16 @@
         </details>
       </div>
 
+      <div class="sect modelBar">
+        <button class="btnTiny" id="btnLoad" title="Открыть другой файл модели">⤒ Другая модель</button>
+        <button class="btnTiny" id="btnDemo" title="Демонстрационная модель для проверки">▤ Демо</button>
+      </div>
       <div id="msg" aria-live="polite"></div>
     </aside>
 
     <main id="viewer">
       <div id="vign"></div>
-      <div id="hint"><span>Нажмите <b>«Загрузить модель школы»</b> и выберите файл <b>shkola-model.glb</b>,<br>или перетащите его сюда.<br><br>Проверить, что всё работает, можно на демо-модели.</span></div>
+      <div id="hint"><span>Загружаю модель объекта…<br><br>Если она не появилась — перетащите сюда файл <b>shkola-model.glb</b><br>или воспользуйтесь кнопками внизу панели.</span></div>
       <button id="btnHome2" type="button" aria-label="Показать всю школу">⌂ Вся школа</button>
       <button id="btnAxes" type="button" aria-label="Показать координационные оси">⊹ Оси</button>
       <button id="btnElev" type="button" aria-label="Показать высотные отметки">⇱ Отметки</button>
@@ -5544,7 +5554,7 @@
         gltfLoader.load('./shkola-model.glb',
           function(g){ onModelReady(g.scene || g.scenes[0], 'shkola-model.glb', false); },
           undefined,
-          function(){ hideLoader(); setMsg('Нажмите «Загрузить модель школы» и выберите файл shkola-model.glb.'); });
+          function(){ hideLoader(); setMsg('Модель рядом с приложением не найдена. Перетащите файл shkola-model.glb в окно или нажмите «⤒ Другая модель» внизу панели.'); });
       });
     }
 
